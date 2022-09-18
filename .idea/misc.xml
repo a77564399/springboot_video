@@ -3,6 +3,7 @@
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/project_bilibili_api" />
+    <file type="web" url="file://$PROJECT_DIR$/project_bilibili_dao" />
     <file type="web" url="file://$PROJECT_DIR$/project_bilibili_service" />
   </component>
   <component name="MavenProjectsManager">

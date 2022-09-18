@@ -1,8 +1,9 @@
-package com.project.bilibili;
+package com.project.bilibili.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public class DemoDao {
+public interface DemoDao {
+    String queryName(int id);
 
 }

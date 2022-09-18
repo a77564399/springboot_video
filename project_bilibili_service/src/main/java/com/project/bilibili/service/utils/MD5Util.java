@@ -1,4 +1,4 @@
-package com.imooc.bilibili.service.util;
+package com.project.bilibili.service.utils;
 
 import org.apache.commons.codec.digest.DigestUtils;
 

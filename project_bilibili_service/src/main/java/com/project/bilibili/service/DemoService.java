@@ -1,4 +1,4 @@
-package project.bilibili.service;
+package com.project.bilibili.service;
 
 import com.project.bilibili.dao.DemoDao;
 import org.springframework.beans.factory.annotation.Autowired;

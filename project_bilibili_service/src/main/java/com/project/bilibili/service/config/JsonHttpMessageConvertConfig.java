@@ -16,14 +16,14 @@ import java.util.List;
 
 @Configuration
 public class JsonHttpMessageConvertConfig {
-//    public static void main(String[] args) {
-//        List<Object> list = new ArrayList<>();
-//        Object o = new Object();
-//        list.add(o);
-//        list.add(o);
-//        System.out.println(JSONObject.toJSONString(list));
-//        System.out.println(JSONObject.toJSONString(list,SerializerFeature.DisableCircularReferenceDetect));
-//    }
+    public static void main(String[] args) {
+        List<Object> list = new ArrayList<>();
+        Object o = new Object();
+        list.add(o);
+        list.add(o);
+        System.out.println(JSONObject.toJSONString(list));
+        System.out.println(JSONObject.toJSONString(list,SerializerFeature.DisableCircularReferenceDetect));
+    }
 
 //@Bean自动装载
     @Bean

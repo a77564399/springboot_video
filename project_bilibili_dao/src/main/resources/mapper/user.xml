@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD MAPPER 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.bilibili.dao.UserDao">
+    <select id="getUserByPhone" parameterType="String" resultType="com.project.bilibili.domain.User">
+        select
+            *
+        from
+            t_user
+        where
+            phone=#{phone}
+    </select>
+
+<!--  后面表示需要插入之后需要拿到插入数据生成的主键Key-->
+    <insert id="addUser" parameterType="com.project.bilibili.domain.User" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            t_user(
+                   phone,
+                   email,
+                   password,
+                   salt,
+                   createTime
+        )values (
+                 #{phone},
+                 #{email},
+                 #{password},
+                 #{salt},
+                 #{createTime}
+                )
+    </insert>
+    <insert id="addUserInfo" parameterType="com.project.bilibili.domain.User">
+        insert into
+            t_user_info(
+                userId,
+                nick,
+                avatar,
+                sign,
+                gender,
+                birth,
+                createTime
+        )values (
+                #{userId},
+                #{nick},
+                #{avatar},
+                #{sign},
+                #{gender},
+                #{birth},
+                #{createTime}
+                )
+    </insert>
+
+    <select id="getUserById" parameterType="java.lang.Long" resultType="com.project.bilibili.domain.User">
+        select
+            *
+        from
+            t_user
+        where
+            id = #{id}
+    </select>
+
+    <select id="getUserInfoById" parameterType="java.lang.Long" resultType="com.project.bilibili.domain.UserInfo">
+        select
+            *
+        from
+            t_user_info
+        where
+            userId = #{userId}
+    </select>
+
+
+    <update id="updateUsers" parameterType="com.project.bilibili.domain.User">
+        update
+            t_user
+        set
+        <if test="phone != null and phone != '' ">
+            phone = #{phone},
+        </if>
+        <if test="email != null and email != '' ">
+            email = #{email},
+        </if>
+        <if test="password != null and password != '' ">
+            password = #{password},
+        </if>
+            updateTime = #{updateTime}
+        where
+            id = #{id}
+    </update>
+
+
+    <update id="updateUserInfos" parameterType="com.project.bilibili.domain.UserInfo" >
+        update
+            t_user_info
+        set
+--            昵称一般必须有，所以判断非null和非‘ ’
+            <if test="nick != null and nick!='' ">
+                nick = #{nick}
+            </if>
+-- 头像可以没有，所以只用判断!null 就可以了,avatar为空系统会自动给默认头像
+            <if test="avatar != null">
+                avatar = #{avatar}
+            </if>
+
+            <if test="birth != null and birth!='' ">
+                birth = #{birth}
+            </if>
+            -- 头像可以没有，所以只用判断!null 就可以了,avatar为空系统会自动给默认头像
+            <if test="gender != null and gender != ' ' ">
+                gender = #{gender}
+            </if>
+                updateTime = #{updateTime}
+        where
+            id = #{id}
+    </update>
+
+
+
+    <select id="getUserInfoByUserIds" parameterType="java.lang.Long" resultType="com.project.bilibili.domain.User">
+        select
+            *
+        from
+            t_user_info
+        where
+            1=1
+        <!--   如果条件判断不生效，那就默认执行查询全部userInfo的方法？会不会有问题-->
+            <if test="userIdList != null and userIdList.size >0">
+                and userId in
+                <foreach collection="userIdList" item="userId" index="index" open="(" separator="," close=")">
+                    #{userId}
+                </foreach>
+            </if>
+    </select>
+
+    <select id="getCountUserInfos" parameterType="java.util.Map" resultType="java.lang.Integer">
+-- 1:想象成表中多加了1这个字段，全是1，只为了返回一共有多少条数据,可以直接从map中获取到nick
+        select
+            count(1)
+        from
+            t_user_info
+        where
+            1=1
+            <if test="nick!=null and nick!='' ">
+                and nick like '%${nick}%'
+            </if>
+    </select>
+
+
+    <select id="pageListUserInfos" parameterType="java.util.Map" resultType="com.project.bilibili.domain.UserInfo">
+        -- 1:想象成表中多加了1这个字段，全是1，只为了返回一共有多少条数据,可以直接从map中获取到nick
+        select
+            *
+        from
+            t_user_info
+        where
+            1=1
+                <if test="nick!=null and nick!='' ">
+                    and nick like '%${nick}%'
+                </if>
+--         通过用户id倒序排序
+        order by desc
+--         传入参数从start开始，一共limit条
+        limit #{start},#{limit}
+    </select>
+
+</mapper>

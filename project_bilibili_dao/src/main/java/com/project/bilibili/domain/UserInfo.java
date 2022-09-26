@@ -9,7 +9,7 @@ public class UserInfo {
 
     private String nick;
 
-    private String avater;
+    private String avatar;
 
     private String sign;
 
@@ -20,6 +20,9 @@ public class UserInfo {
     private Date createTime;
 
     private Date updateTime;
+
+//  当前用户是否被查询的用户关注
+    private boolean followed;
 
     public Long getId() {
         return id;
@@ -45,12 +48,12 @@ public class UserInfo {
         this.nick = nick;
     }
 
-    public String getAvater() {
-        return avater;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setAvater(String avater) {
-        this.avater = avater;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public String getSign() {
@@ -91,5 +94,13 @@ public class UserInfo {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public boolean isFollowed() {
+        return followed;
+    }
+
+    public void setFollowed(boolean followed) {
+        this.followed = followed;
     }
 }

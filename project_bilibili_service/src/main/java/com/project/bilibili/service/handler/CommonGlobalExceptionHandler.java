@@ -27,6 +27,7 @@ public class CommonGlobalExceptionHandler {
             String errorCode = ((ConditionException)e).getCode();
             return new JsonResponse<>(errorCode,errorMsg);
         }else {
+            e.printStackTrace();
 //           如果不是condition类型，那么就新建一种类型，状态码为500
             return new JsonResponse<>("500",errorMsg);
         }

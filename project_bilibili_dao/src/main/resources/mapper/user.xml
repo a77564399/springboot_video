@@ -113,7 +113,7 @@
 
 
 
-    <select id="getUserInfoByUserIds" parameterType="java.lang.Long" resultType="com.project.bilibili.domain.User">
+    <select id="getUserInfoByUserIds" parameterType="java.lang.Long" resultType="com.project.bilibili.domain.UserInfo">
         select
             *
         from

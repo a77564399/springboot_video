@@ -15,7 +15,7 @@ public class TokenUtil {
     public static String generateToken(Long userId) throws Exception {
         Algorithm algorithm = Algorithm.RSA256(RSAUtil.getPublicKey(),RSAUtil.getPrivateKey());
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.SECOND,30);
+        calendar.add(Calendar.MINUTE,5);
         System.out.println(userId);
 //        使用userid创建每个用户的token
         return JWT.create().withKeyId(String.valueOf(userId))

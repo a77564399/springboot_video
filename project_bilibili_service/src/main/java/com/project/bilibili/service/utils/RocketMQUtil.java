@@ -32,6 +32,7 @@ public class RocketMQUtil {
     {
 //      消息进行两次发送
         int messageCount = 2;
+//        producer.setSendMsgTimeout(6000);
 //      倒计时器，计数
         CountDownLatch2 countDownLatch2 = new CountDownLatch2(messageCount);
         for (int i = 0; i < messageCount; i++) {

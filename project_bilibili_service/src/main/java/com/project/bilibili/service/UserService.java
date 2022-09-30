@@ -6,6 +6,7 @@ import com.project.bilibili.dao.UserDao;
 import com.project.bilibili.domain.PageResult;
 import com.project.bilibili.domain.User;
 import com.project.bilibili.domain.UserInfo;
+import com.project.bilibili.domain.auth.UserAuthorities;
 import com.project.bilibili.domain.constant.UserConstant;
 import com.project.bilibili.exception.ConditionException;
 import com.project.bilibili.service.utils.MD5Util;
@@ -25,6 +26,8 @@ public class UserService {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private UserAuthService userAuthService;
     /**
      * 添加用户，把每一项信息set上，然后传过去add即可
      * @param user
@@ -66,6 +69,10 @@ public class UserService {
         userInfo.setGender(UserConstant.GENDER_UNKNOW);
         userInfo.setCreateTime(now);
         userDao.addUserInfo(userInfo);
+
+//      给当前用户添加默认角色
+        userAuthService.addDefaultUserRole(user.getId());
+
     }
 
     /**

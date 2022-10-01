@@ -45,7 +45,7 @@ public class UserAuthService {
 //      通过常量中LV0的code获取到ID(严谨)
         AuthRole role = roleAuthService.getRoleByCode(AuthRoleConstant.ROLE_LV0);
 //        设置id和roleid
-        userRole.setId(id);
+        userRole.setUserId(id);
         userRole.setRoleId(role.getId());
         userRoleService.addUserRole(userRole);
     }

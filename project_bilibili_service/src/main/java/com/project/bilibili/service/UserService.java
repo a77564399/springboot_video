@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.mysql.cj.util.StringUtils;
 import com.project.bilibili.dao.UserDao;
 import com.project.bilibili.domain.PageResult;
+import com.project.bilibili.domain.RefreshTokenDetail;
 import com.project.bilibili.domain.User;
 import com.project.bilibili.domain.UserInfo;
 import com.project.bilibili.domain.auth.UserAuthorities;
@@ -16,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sun.security.provider.MD5;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -206,5 +204,74 @@ public class UserService {
             userInfoList = userDao.pageListUserInfos(jsonObject);
         }
         return new PageResult<>(total,userInfoList);
+    }
+
+    public Map<String, Object> loginForDts(User user) throws Exception {
+        String phone = user.getPhone();
+//      判断手机号
+        if(StringUtils.isNullOrEmpty(phone))
+        {
+            throw new ConditionException("手机号不能为空！");
+        }
+//        获取用户
+        User dbUser = this.getUserByPhone(phone);
+        if(dbUser==null)
+        {
+            throw new ConditionException("当前用户不存在！");
+        }
+//        获取用户密码
+        String password = user.getPassword();
+//        获取前端密码并解密
+        String rawPassword;
+        try {
+            rawPassword = RSAUtil.decrypt(password);
+        } catch (Exception e) {
+            throw new ConditionException("密码解密失败！");
+        }
+//        盐值MD5加密并验证
+        String salt = dbUser.getSalt();
+        String md5Password = MD5Util.sign(rawPassword, salt, "UTF-8");
+        if(!md5Password.equals(dbUser.getPassword())){
+            throw new ConditionException("密码错误！");
+        }
+
+        Long userId = dbUser.getId();
+        String accessToken = TokenUtil.generateToken(userId);
+        String refreshToken = TokenUtil.generateRefreshToken(userId);
+//      将refreshToken和userId存入数据库，方便后续用户想要延迟刷新，可以在数据库中查找相关联的refreshToken，如果存在就可以刷新，没找到就需要重新登录
+//      带userId是为了再次确认，此token是和userId相关联的
+        userDao.deleteRefreshToken(refreshToken,userId);
+        userDao.addRefreshToken(refreshToken,userId,new Date());
+        Map<String,Object>  result = new HashMap<>();
+        result.put("accessToken",accessToken);
+        result.put("refreshToken",refreshToken);
+        return result;
+    }
+
+    /**
+     * 用户退出登录
+     * @param refreshToken
+     * @param userId
+     */
+    public void logout(String refreshToken,Long userId) {
+        userDao.deleteRefreshToken(refreshToken,userId);
+    }
+
+    /**
+     * 刷新用户token
+     */
+    public String refreshAccessToken(String refreshToken) throws Exception {
+        RefreshTokenDetail refreshTokenDetail = userDao.getRefreshTokenDetail(refreshToken);
+//      刷新token不存在，token过期，提示与之前的token过期保持一致
+        if(refreshTokenDetail==null)
+        {
+            throw new ConditionException("555","token过期！");
+        }
+//      刷新token存在，那么就生成一个新的用户token并返回
+        else {
+            Long userId = refreshTokenDetail.getUserId();
+            return TokenUtil.generateToken(userId);
+
+        }
     }
 }

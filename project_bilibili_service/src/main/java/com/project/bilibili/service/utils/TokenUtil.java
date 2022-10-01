@@ -27,6 +27,23 @@ public class TokenUtil {
                 .sign(algorithm);
     }
 
+//  生成刷新Token
+    public static String generateRefreshToken(Long userId) throws Exception {
+        Algorithm algorithm = Algorithm.RSA256(RSAUtil.getPublicKey(),RSAUtil.getPrivateKey());
+        Calendar calendar = Calendar.getInstance();
+//      失效时间改为7天
+        calendar.add(Calendar.DAY_OF_MONTH,7);
+        System.out.println(userId);
+//        使用userid创建每个用户的token
+        return JWT.create().withKeyId(String.valueOf(userId))
+//               设置签发者
+                .withIssuer(ISSUER)
+//               设置过期时间（当前系统时间+30s）
+                .withExpiresAt(calendar.getTime())
+//                使用RSA加密签发JWT
+                .sign(algorithm);
+    }
+
     public static Long vertifyToken(String token) {
 //        验证token时会有token过期等正常的异常情况，需要进行友好提示
         try {
@@ -49,4 +66,6 @@ public class TokenUtil {
 
         }
     }
+
+
 }

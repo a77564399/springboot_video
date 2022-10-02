@@ -45,9 +45,11 @@ public class UserMomentsService {
 
     public List<UserMoment> getUserSubscribedMoments(Long userId) {
 //      用户动态相关内容都放在了Redis中，所以直接从Redis里面取即可
+//        System.out.println("user"+userId);
         String key = "subscribed-"+userId;
         System.out.println(key);
         String listStr = (String) redisTemplate.opsForValue().get(key);
+//        System.out.println(listStr);
 //      将字符串转换成list并返回
         return JSONArray.parseArray(listStr,UserMoment.class);
     }

@@ -24,6 +24,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.project.bilibili.domain.constant.UserMomentsConstant.TOPIC_MOMENTS;
+
 @Configuration
 public class RocketMQConfig {
 //    @Value("${rocketmq.name.server.address}")
@@ -50,13 +52,13 @@ public class RocketMQConfig {
     }
 
 //    用户动态相关消费者
-    @Bean("momentsConsumer")
+    @Bean("momentsConsume")
     public DefaultMQPushConsumer momentsConsumer() throws MQClientException {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(UserMomentsConstant.GROUP_MOMENTS);
         consumer.setNamesrvAddr(nameServerAddr);
 //        consumer.setVipChannelEnabled(false);
 //      订阅内容，以及二级主题
-        consumer.subscribe(UserMomentsConstant.TOPIC_MOMENTS,"*");
+        consumer.subscribe(TOPIC_MOMENTS,"*");
 //      添加监听器，生产者把消息推送到MQ，MQ把消息推给消费者，消费者抓取消息，监听器监听到新增内容后进行推送
 //        使用并发监听
         consumer.registerMessageListener(new MessageListenerConcurrently() {
@@ -88,6 +90,8 @@ public class RocketMQConfig {
 //              使用Redis将用户的动态push给所有的粉丝
                 for(UserFollowing userFan:userFans)
                 {
+//                    System.out.println("userFan:"+userFan.getUserId());
+//                    System.out.println("fan+"+userFan.getUserId());
 //                   定义redis的key
                     String key = "subscribed-" + userFan.getUserId();
 //                    System.out.println("key:"+key);

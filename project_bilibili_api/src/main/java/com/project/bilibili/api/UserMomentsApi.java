@@ -28,7 +28,7 @@ public class UserMomentsApi {
      * 新建用户动态
      */
 //  接口权限限制,Lv0不得访问此接口
-//    @ApiLimitedRole(limitedRoleCodeList = AuthRoleConstant.ROLE_LV0)
+    @ApiLimitedRole(limitedRoleCodeList = AuthRoleConstant.ROLE_LV0)
     @DataLimited
     @PostMapping("/user-moments")
     public JsonResponse<String> addUserMoments(@RequestBody UserMoment userMoment) throws Exception {

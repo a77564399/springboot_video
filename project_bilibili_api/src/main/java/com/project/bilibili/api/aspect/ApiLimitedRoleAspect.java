@@ -37,11 +37,11 @@ public class ApiLimitedRoleAspect {
 //  当pointCut里面的注解被实际执行到的时候吗，就会被切入
     @Pointcut("@annotation(com.project.bilibili.domain.annotation.ApiLimitedRole)")
     public void check(){
-
     }
 
 //    切入切点之后的处理逻辑 织入，由于在进入切面的时候传入了limitedRoleCodeList，需要获取到apiLimitedRole注解中的value并传给方法的参数
 //   设置哪些方法之前执行此切点方法
+//    定义需要匹配的切点表达式，同时需要匹配参数
     @Before("check() && @annotation(apiLimitedRole)")
     public void doBefore(JoinPoint joinPoint, ApiLimitedRole apiLimitedRole)
     {

@@ -15,6 +15,7 @@ import com.project.bilibili.service.utils.RSAUtil;
 import com.project.bilibili.service.utils.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sun.security.provider.MD5;
 
 import java.util.*;
@@ -206,6 +207,7 @@ public class UserService {
         return new PageResult<>(total,userInfoList);
     }
 
+    @Transactional
     public Map<String, Object> loginForDts(User user) throws Exception {
         String phone = user.getPhone();
 //      判断手机号
@@ -271,7 +273,6 @@ public class UserService {
         else {
             Long userId = refreshTokenDetail.getUserId();
             return TokenUtil.generateToken(userId);
-
         }
     }
 }

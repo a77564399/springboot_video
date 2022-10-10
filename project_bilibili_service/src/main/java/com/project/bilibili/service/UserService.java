@@ -275,4 +275,8 @@ public class UserService {
             return TokenUtil.generateToken(userId);
         }
     }
+
+    public List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList) {
+        return userDao.batchGetUserInfoByUserIds(userIdList);
+    }
 }

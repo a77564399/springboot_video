@@ -39,6 +39,102 @@
             </foreach>
     </insert>
 
+    <select id="pageCountVideos" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            t_video
+        where
+            1=1
+            <if test="area!=null and area!='' ">
+                and area = #{area}
+            </if>
+    </select>
+
+    <select id="pageListVideos" parameterType="java.util.Map" resultType="com.project.bilibili.domain.Video">
+        select * from t_video where 1=1
+            <if test="area!=null and area!='' ">
+                and area = #{area}
+            </if>
+        order by id desc
+        limit #{start},#{limit}
+    </select>
+
+    <select id="getVideoById" parameterType="java.lang.Long" resultType="com.project.bilibili.domain.Video">
+        select * from t_video where id=#{id}
+    </select>
+
+    <select id="getVideoLikeByVideoIdAndUserId" resultType="com.project.bilibili.domain.VideoLike">
+        select * from t_video_like where videoId=#{videoId} and userId=#{userId}
+    </select>
+
+    <delete id="deleteVideoLike">
+        delete from t_video_like where videoId = #{videoId} and userId=#{userId}
+    </delete>
+
+    <select id="getVideoLikes" parameterType="java.lang.Long" resultType="java.lang.Long">
+        select count(1) from t_video_like where videoId = #{videoId}
+    </select>
+
+    <delete id="deleteVideoCollection">
+        delete from
+            t_video_collection
+        where
+            videoId = #{videoId} and userId = #{userId}
+    </delete>
 
 
+    <insert id="addVideoCollection" parameterType="com.project.bilibili.domain.VideoCollection">
+        insert into
+            t_video_collection(userId,videoId,groupId,createTime)
+        values
+            (#{userId},
+             #{videoId},
+             #{groupId},
+             #{createTime})
+    </insert>
+
+    <select id="getVideoCounts" parameterType="java.lang.Long">
+        select
+            count(1)
+        from
+            t_video_collection
+        where
+            videoId = #{videoId}
+    </select>
+
+    <select id="getVideoCollection" resultType="com.project.bilibili.domain.VideoCollection">
+        select * from t_video_collection where videoId = #{videoId} and userId=#{userId}
+    </select>
+    
+    <select id="getVideoCoinByVideoIdAndUserId" resultType="com.project.bilibili.domain.VideoCoin">
+        select * from t_video_coin where userId=#{userId} and videoId=#{videoId}
+    </select>
+
+    <insert id="addVideoCoin" parameterType="com.project.bilibili.domain.VideoCoin">
+        insert into t_video_coin(userId,videoId,amount,createTime) values (#{userId},#{videoId},#{amount},#{createTime})
+    </insert>
+
+    <update id="updateVideoCoin" parameterType="com.project.bilibili.domain.VideoCoin">
+        update t_video_coin set amount=#{amount},updateTime=#{updateTime} where videoId=#{videoId} and userId = #{userId}
+    </update>
+
+    <insert id="addVideoComment" parameterType="com.project.bilibili.domain.VideoComment">
+        insert into t_video_comment(videoId,userId,comment,replyUserId,rootId,createTime) values (#{videoId},#{userId},#{comment},#{replyUserId},#{rootId},#{createTime})
+    </insert>
+
+    <select id="pageCountVideoComments" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(1) from t_user_comment where videoId=#{videoId} and rootId is null order by id desc limit #{start},#{limit}
+    </select>
+
+    <select id="pageVideoComments" parameterType="java.util.Map" resultType="com.project.bilibili.domain.VideoComment">
+        select * form t_user_comment where videoId=#{videoId} and rootId is null order by id desc limit #{start},#{limit}
+    </select>
+
+    <select id="batchGetVideoCommentsByRootId" parameterType="java.util.List" resultType="com.project.bilibili.domain.VideoComment">
+        select * from t_video_comment where rootId in
+                                      <foreach collection="parentIdList" separator="," item="rootId" open="(" close=")">
+                                          #{rootId}
+                                      </foreach>
+    </select>
 </mapper>

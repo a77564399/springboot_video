@@ -16,6 +16,15 @@ public class FileApi {
     @Autowired
     private FileService fileService;
 
+    /**
+     * 文件分片方法
+     * @param slice：一片文件
+     * @param fileMd5：文件的MD5
+     * @param sliceNo：第几片？
+     * @param totalNo：总共几片？
+     * @return
+     * @throws Exception
+     */
     @PutMapping("/file-slices")
     public JsonResponse<String> uploadFileBySlices(MultipartFile slice,
                                                    String fileMd5,

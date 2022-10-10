@@ -26,7 +26,6 @@ public class DemoApi {
     @GetMapping("/slices")
     public void slices(MultipartFile file) throws IOException {
         fastDFSUtil.convertFileToSlice(file);
-
     }
 
 }

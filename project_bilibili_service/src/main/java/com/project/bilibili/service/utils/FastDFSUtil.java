@@ -1,5 +1,6 @@
 package com.project.bilibili.service.utils;
 
+import com.github.tobato.fastdfs.domain.fdfs.FileInfo;
 import com.github.tobato.fastdfs.domain.fdfs.MetaData;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
@@ -12,18 +13,18 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
 @Component
 public class FastDFSUtil {
     /**
-     * 注册自带工具，其中的upload放啊不适合大文件的上传，断网后会丢失
+     * 注册自带工具，其中的upload不适合大文件的上传，断网后会丢失
      */
     @Autowired
     private FastFileStorageClient fastFileStorageClient;
@@ -117,7 +118,7 @@ public class FastDFSUtil {
         String uploadedSizeKey = UPLOADED_SIZE_KEY + fileMd5;
 //       目前已经上传的分片数目
         String uploadedNoKey = UPLOADED_NO_KEY+fileMd5;
-        System.out.println(uploadedSizeKey);
+//        System.out.println(uploadedSizeKey);
 //      判断当前有没有已经传输的分片的大小
         String uploadedSizeStr = redisTemplate.opsForValue().get(uploadedSizeKey);
         Long uploadedSize = 0L;
@@ -150,7 +151,7 @@ public class FastDFSUtil {
                 throw new ConditionException("上传失败！");
 //          继续上传文件
 //          前面获取已经上传的进度uploadedSize，也就是偏移量
-            System.out.println(uploadedSize);
+//            System.out.println(uploadedSize);
             this.modifyAppenderFile(file,filePath,uploadedSize);
 //          更新redis中的值
 //          上传的分片数目+1
@@ -164,12 +165,12 @@ public class FastDFSUtil {
         Integer upLoadedNo = Integer.parseInt(upLoadedNoStr);
 //      最后一个分片备用，如果是最后一个分片，就把路径赋值给临时变量并返回（因为内部直接删除了）
         String resultPath = "";
-        System.out.println("upNo:"+upLoadedNo);
-        System.out.println("total:"+totalNo);
+//        System.out.println("upNo:"+upLoadedNo);
+//        System.out.println("total:"+totalNo);
         if(upLoadedNo.equals(totalNo))
         {
-            resultPath = remoteIp+":"+DFS_PORT+"/"+DEFAULT_GROUP+"/"+redisTemplate.opsForValue().get(pathKey);
-            System.out.println(resultPath);
+            resultPath =redisTemplate.opsForValue().get(pathKey);
+//            System.out.println(resultPath);
 //          是最后一个分片就清空相关参数
 //          使用list存储所有的key，然后使用redis的相关方法一次性删除
             List<String> keyList = Arrays.asList(pathKey, uploadedSizeKey, uploadedNoKey);
@@ -226,5 +227,57 @@ public class FastDFSUtil {
         fastFileStorageClient.deleteFile(filePath);
     }
 
-
+    @Value("${fdfs.http.storage-addr}")
+    private String httpFdfsStorageAddr;
+    public void viewViderOnlineBySlices(HttpServletRequest request, HttpServletResponse response, String path) throws Exception {
+//      获取文件信息:包括文件长度，创建时间，校验码以及文件所在storage服务器的ip地址
+        FileInfo fileInfo = fastFileStorageClient.queryFileInfo(DEFAULT_GROUP, path);
+        long fileSize = fileInfo.getFileSize();
+        String url = httpFdfsStorageAddr+path;
+//      使用http的get请求访问url并返回其输出流
+//      获取所有请求头名称
+        Enumeration<String> headerNames = request.getHeaderNames();
+        Map<String,Object> headers = new HashMap<>();
+//      enum迭代方法
+        while (headerNames.hasMoreElements())
+        {
+//          获取请求头名称
+            String header = headerNames.nextElement();
+//          将请求头放入map中
+            headers.put(header,request.getHeader(header));
+        }
+//      获取当前请求头中请求的视频范围
+        String rangeStr = request.getHeader("Range");
+        String[] range;
+        if(StringUtil.isNullOrEmpty(rangeStr))
+        {
+//          如果请求头中的范围为空，就获取整个文件的长度
+            rangeStr = "bytes=0-"+(fileSize-1);
+        }
+//      将str进行拆分
+        range = rangeStr.split("bytes=|-");
+        long begin = 0;
+        if(range.length>=2)
+        {
+//          分割后，range中第一个数据是起始位置，获取开始位置
+            begin = Long.parseLong(range[1]);
+        }
+//      默认结束位置为文件结尾
+        long end = fileSize-1;
+        if(range.length>=3)
+        {
+            end = Long.parseLong(range[2]);
+        }
+        long len = end-begin+1;
+//      相应中的范围标签：Content-Range: bytes start-end/size(总文件大小)
+        String ContentRange = "bytes "+begin+"-"+end+"/"+fileSize;
+//       仿照Http请求中的response进行响应参数设置
+        response.setHeader("Content-Range",ContentRange);
+        response.setHeader("Accept-Ranges","bytes");
+        response.setHeader("Content-Type","video/mp4");
+        response.setContentLength((int) len);
+        response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+//      返回流
+        HttpUtil.get(url,headers,response);
+    }
 }

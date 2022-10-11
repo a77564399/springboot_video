@@ -7,6 +7,7 @@ import com.project.bilibili.domain.UserFollowing;
 import com.project.bilibili.domain.UserMoment;
 import com.project.bilibili.domain.constant.UserMomentsConstant;
 import com.project.bilibili.service.UserFollowingService;
+import com.project.bilibili.service.webSocket.WebSocketService;
 import io.netty.util.internal.StringUtil;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
@@ -24,6 +25,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.project.bilibili.domain.constant.UserMomentsConstant.TOPIC_DANMUS;
 import static com.project.bilibili.domain.constant.UserMomentsConstant.TOPIC_MOMENTS;
 
 @Configuration
@@ -121,5 +123,64 @@ public class RocketMQConfig {
         consumer.start();
         return consumer;
     }
+
+
+
+
+    //  弹幕相关生产者
+    @Bean("danmusProducer")
+    public DefaultMQProducer danmusProducer() throws MQClientException {
+        DefaultMQProducer producer = new DefaultMQProducer(UserMomentsConstant.GROUP_DANMUS);
+        producer.setNamesrvAddr(nameServerAddr);
+//        producer.setVipChannelEnabled(false);
+//        producer.setSendMsgTimeout(15000);
+        producer.start();
+
+//        producer.setSendMsgTimeout(10000);
+        return producer;
+    }
+
+
+
+    //  弹幕相关消费者
+    @Bean("danmusConsume")
+    public DefaultMQPushConsumer danmusConsumer() throws MQClientException {
+//      存储分组
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(UserMomentsConstant.GROUP_DANMUS);
+//      名称服务器
+        consumer.setNamesrvAddr(nameServerAddr);
+//      订阅内容，以及二级主题
+        consumer.subscribe(TOPIC_DANMUS,"*");
+//      添加监听器，生产者把消息推送到MQ，MQ把消息推给消费者，消费者抓取消息，监听器监听到新增内容后进行推送
+//        使用并发监听
+        consumer.registerMessageListener(new MessageListenerConcurrently() {
+            @Override
+//            并行处理监听器，拿到两个变量消息和上下文
+            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
+//              由于每次添加动态，每次只默认向RocketMQ发送一条数据，因此list中只有一个元素
+                MessageExt msg = msgs.get(0);
+                String bodyStr = new String(msg.getBody());
+//                System.out.println("body:"+bodyStr);
+
+//              将消息转换成JSONObject，然后获取sessionId（存储客户端和服务端回话）和message（弹幕消息）
+                JSONObject jsonObject = JSONObject.parseObject(bodyStr);
+                String sessionId = jsonObject.getString("sessionId");
+                String message = jsonObject.getString("message");
+//              通过sessionId取出WebsocketService从而获得会话（session）
+                WebSocketService webSocketService = WebSocketService.WEBSOCKET_MAP.get(sessionId);
+//              会话开启中，发送消息
+                if(webSocketService.getSession().isOpen())
+                {
+                    webSocketService.sendMsg(message);
+                }
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            }
+        });
+//        启动消费者
+        consumer.start();
+        return consumer;
+    }
+
+
 
 }

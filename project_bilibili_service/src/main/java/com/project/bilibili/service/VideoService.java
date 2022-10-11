@@ -252,4 +252,16 @@ public class VideoService {
         }
         return new PageResult<>(total,list);
     }
+
+    public Map<String, Object> getVideoDetails(Long videoId) {
+        Video video = videoDao.getVideoById(videoId);
+        Long userId = video.getUserId();
+//      要尽量减少依赖的注入，因此是使用user里面的方法，这个方法可以同时获取t_user和t_user_info
+        User user = userService.getUserInfo(userId);
+        UserInfo userInfo = user.getUserInfo();
+        Map<String,Object> result = new HashMap<>();
+        result.put("video",video);
+        result.put("userInfo",userInfo);
+        return result;
+    }
 }

@@ -147,6 +147,18 @@ public class VideoApi {
         return new JsonResponse<>(result);
     }
 
+    /**
+     * 获取视频详情
+     */
+    @GetMapping("/video-detail")
+    public JsonResponse<Map<String,Object>> getVideoDetails(@RequestParam Long videoId)
+    {
+//      因为要返回视频详情和用户信息(要展示)
+        Map<String,Object> result = videoService.getVideoDetails(videoId);
+        return new JsonResponse<>(result);
+    }
+
+
 
 
 }

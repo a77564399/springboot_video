@@ -3,12 +3,16 @@ package com.project.bilibili.api;
 import com.project.bilibili.api.support.UserSupport;
 import com.project.bilibili.dao.VideoDao;
 import com.project.bilibili.domain.*;
+import com.project.bilibili.exception.ConditionException;
+import com.project.bilibili.service.ElasticSearchService;
 import com.project.bilibili.service.VideoService;
+import org.apache.mahout.cf.taste.common.TasteException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,18 +23,30 @@ public class VideoApi {
     @Autowired
     private UserSupport userSupport;
 
+    @Autowired
+    private ElasticSearchService elasticSearchService;
+
     @PostMapping("/videos")
     public JsonResponse<String> addVideos(@RequestBody Video video)
     {
         Long userId = userSupport.getCurrentUserId();
         video.setUserId(userId);
         videoService.addVideo(video);
+        elasticSearchService.addVideo(video);
         return JsonResponse.success();
     }
     @GetMapping("/videos")
     public JsonResponse<PageResult<Video>> pageListVideos(Integer size,Integer no,String area)
     {
         PageResult<Video> result = videoService.pageListVideos(size, no, area);
+        return new JsonResponse<>(result);
+    }
+
+//  es查询视频
+    @GetMapping("/es-videos")
+    public JsonResponse<Video> pageEsVideos(@RequestParam String keyword)
+    {
+        Video result = elasticSearchService.getVideos(keyword);
         return new JsonResponse<>(result);
     }
 
@@ -158,6 +174,53 @@ public class VideoApi {
         return new JsonResponse<>(result);
     }
 
+    /**
+     * 添加视频观看记录
+     * request用于获取用户相关情况
+     * 区分游客：操作系统+浏览器(userAgent)+IP
+     */
+    @PostMapping("/video-views")
+    public JsonResponse<String> addVideoView(@RequestBody VideoView videoView,HttpServletRequest request)
+    {
+        Long userId;
+        try {
+            userId = userSupport.getCurrentUserId();
+            videoView.setUserId(userId);
+            videoService.addVideoView(videoView,request);
+        }catch (Exception ignore)
+        {
+            videoService.addVideoView(videoView,request);
+        }
+        return JsonResponse.success();
+    }
+
+    /**
+     * 获取视频播放量
+     */
+    @GetMapping("/video-view-counts")
+    public JsonResponse<Integer> getVideoViewCounts(@RequestParam Long videoId)
+    {
+        Integer count = videoService.getVideoViewCounts(videoId);
+        return new JsonResponse<>(count);
+    }
+
+    /**
+     * 视频内容推荐
+     */
+    @GetMapping("/recommendations")
+    public JsonResponse<List<Video>> recommend() throws TasteException {
+        Long userId;
+        List<Video> list;
+        userId = userSupport.getCurrentUserId();
+        list = videoService.recommend(userId);
+//        try {
+//
+//        }catch (Exception e)
+//        {
+//            throw new ConditionException("参数错误！");
+//        }
+        return new JsonResponse<>(list);
+    }
 
 
 

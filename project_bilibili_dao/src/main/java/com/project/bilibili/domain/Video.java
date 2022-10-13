@@ -8,6 +8,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.util.Date;
 import java.util.List;
 
+//es查询，value为索引名称
 @Document(indexName = "videos")
 public class Video {
 
@@ -21,6 +22,7 @@ public class Video {
 
     private String thumbnail;//封面
 
+//  存储的类型：text（可以进行分词查询）
     @Field(type = FieldType.Text)
     private String title; //标题
 

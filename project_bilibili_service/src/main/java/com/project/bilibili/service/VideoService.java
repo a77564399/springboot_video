@@ -81,6 +81,7 @@ public class VideoService {
         List<Video> list = new ArrayList<>();
 //      先看满足条件的数据有多少条
         Integer total = videoDao.pageCountVideos(params);
+//        如果没有满足的视频，直接查
         if(total>0)
         {
             list = videoDao.pageListVideos(params);

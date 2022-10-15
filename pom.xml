@@ -19,6 +19,12 @@
   </modules>
   <name>project_bilibili Maven Webapp</name>
   <url>http://maven.apache.org</url>
+
+  <properties>
+    <spring.could.version>2020.0.5</spring.could.version>
+  </properties>
+
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -162,6 +168,13 @@
       </exclusions>
     </dependency>
 
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+      <version>3.0.5</version>
+    </dependency>
+
     <dependency>
       <groupId>org.bytedeco</groupId>
       <artifactId>javacv</artifactId>
@@ -172,6 +185,20 @@
       <groupId>org.bytedeco.javacpp-presets</groupId>
       <artifactId>ffmpeg-platform</artifactId>
       <version>4.0.2-1.4.3</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-openfeign</artifactId>
+      <version>3.0.6</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+      <version>2.2.10.RELEASE</version>
     </dependency>
 
 

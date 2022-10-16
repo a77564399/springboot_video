@@ -79,9 +79,10 @@ public class VideoService {
         params.put("limit",size);
         params.put("area",area);
         List<Video> list = new ArrayList<>();
+//        list = videoDao.pageListVideos(params);
 //      先看满足条件的数据有多少条
         Integer total = videoDao.pageCountVideos(params);
-//        如果没有满足的视频，直接查
+//        如果没有满足的视频，直接查好像也没啥区别，应该是要返回total，才先查的total
         if(total>0)
         {
             list = videoDao.pageListVideos(params);

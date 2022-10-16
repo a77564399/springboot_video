@@ -13,9 +13,9 @@
   </parent>
 
   <modules>
-    <module>project_bilibili_api</module>
-    <module>project_bilibili_service</module>
     <module>project_bilibili_dao</module>
+    <module>project_bilibili_service</module>
+    <module>project_bilibili_api</module>
   </modules>
   <name>project_bilibili Maven Webapp</name>
   <url>http://maven.apache.org</url>

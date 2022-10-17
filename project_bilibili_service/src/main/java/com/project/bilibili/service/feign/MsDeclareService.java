@@ -13,6 +13,9 @@ public interface MsDeclareService {
     @GetMapping("/demos")
     public Long msget(@RequestParam Long id);
 
+    @GetMapping("/demoxx")
+    public Long msget1();
+
     @PostMapping("/demos")
     public Map<String,Object> mspost(@RequestBody Map<String,Object> params);
 

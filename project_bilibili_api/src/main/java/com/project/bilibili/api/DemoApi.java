@@ -46,8 +46,14 @@ public class DemoApi {
         return msDeclareService.mspost(params);
     }
 
+    @GetMapping("/demoxx1")
+    public Long msget1()
+    {
+        return msDeclareService.msget1();
+    }
 
-//    fallbackMethod:服务降级的时候调用的方法，commandProperties,指定一些熔断器属性
+
+//    fallbackMethod:服务降级的时候调用的方法，commandProperties,指定一些熔断器属性(超时时间)
     @HystrixCommand(fallbackMethod = "error",
             commandProperties = {
                 @HystrixProperty(

@@ -266,7 +266,7 @@ public class VideoService {
                         videoCommentList.add(childVideoCommen);
                     }
                     videoComment.setChildList(childCommentList);
-                    videoComment.setUserInfo(userInfoMap.get(childVideoCommen.getUserId()));
+                    videoComment.setUserInfo(userInfoMap.get(id));
                 });
             });
         }
@@ -318,8 +318,6 @@ public class VideoService {
             videoView.setCreateTime(new Date());
             videoDao.addVideoView(videoView);
         }
-
-
     }
 
     public Integer getVideoViewCounts(Long videoId) {

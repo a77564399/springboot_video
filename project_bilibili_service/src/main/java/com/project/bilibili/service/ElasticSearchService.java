@@ -67,8 +67,6 @@ public class ElasticSearchService {
         searchSourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 //      搜索完成
 
-
-
 //      高亮显示
         String[] array = {"title","nick","description"};
         HighlightBuilder highlightBuilder = new HighlightBuilder();
@@ -86,22 +84,24 @@ public class ElasticSearchService {
         SearchResponse searchResponse = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);
 //      建立返回结果（把查询到的适合的地方）
         List<Map<String,Object>> arrayList = new ArrayList<>();
-//      循环遍历所有被击中的位置
+
+//      循环遍历所有被击中的位置（包含所有字段的所有视频）
         for(SearchHit hit:searchResponse.getHits())
         {
-//          处理高亮字段，string是字段名称(title) HighlightField高亮的位置
+//          处理高亮字段，string是字段名称(title) HighlightField高亮的位置，<字段名，高亮结果>
             Map<String, HighlightField> highlightBuilderFileds = hit.getHighlightFields();
-            //处理完成之后的结果map
+            //处理完成之后的结果map  <字段名,源结果>
             Map<String,Object> sourceMap = hit.getSourceAsMap();
+            System.out.println(sourceMap.get("title"));
             for(String key:array)
             {
-//              将对应位置的字段取出
+//              将对应位置的字段取出，通过字段取出高亮结果0
                 HighlightField field = highlightBuilderFileds.get(key);
                 if(field!=null)
                 {
 //                  因为每一个搜索到的视频可能有多个位置，因此获取到的是碎片组
                     Text[] fragments = field.fragments();
-//                  将所有碎片组 数组转为String
+//                  将所有碎片组 数组转为String(高亮结果组合)
                     String str = Arrays.toString(fragments);
 //                  取消掉前面的[ 后面的]
                     str = str.substring(1,str.length()-1);

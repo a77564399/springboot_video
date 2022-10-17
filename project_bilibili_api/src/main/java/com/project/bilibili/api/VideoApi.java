@@ -35,6 +35,14 @@ public class VideoApi {
         elasticSearchService.addVideo(video);
         return JsonResponse.success();
     }
+
+    @PostMapping("/delete-videos-es")
+    public JsonResponse<String> deleteVideoEs()
+    {
+        elasticSearchService.deleteAllVideos();
+        return JsonResponse.success();
+    }
+
     @GetMapping("/videos")
     public JsonResponse<PageResult<Video>> pageListVideos(Integer size,Integer no,String area)
     {

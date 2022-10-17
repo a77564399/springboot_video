@@ -79,7 +79,6 @@ public class WebSocketService {
             this.userId = TokenUtil.vertifyToken(token);
         }catch (Exception e){}
 
-
 //      通过session获取当前客户端的唯一标识sessionId
         sessionId = session.getId();
         this.session = session;

@@ -29,6 +29,12 @@ public class DemoApi {
         return demoService.queryName(id);
     }
 
+    @GetMapping("/getDemo")
+    public String getDemo(String id)
+    {
+        return "123";
+    }
+
     @GetMapping("/slices")
     public void slices(MultipartFile file) throws IOException {
         fastDFSUtil.convertFileToSlice(file);

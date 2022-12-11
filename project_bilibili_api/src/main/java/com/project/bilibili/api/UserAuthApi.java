@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 public class UserAuthApi {
@@ -24,6 +26,8 @@ public class UserAuthApi {
     {
         Long userId = userSupport.getCurrentUserId();
         UserAuthorities userAuthorities = userAuthService.getUserAuthorities(userId);
+        Set<Character> set = new HashSet<>();
         return new JsonResponse<>(userAuthorities);
+
     }
 }

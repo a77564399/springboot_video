@@ -3,8 +3,6 @@
 <mapper namespace="com.project.bilibili.dao.AuthRoleElementOperationDao">
 
 <!--   这个表是要查出这个角色对应的所有的操作：名称，code以及type-->
-
-
 <!--    resultMap-->
     <!--        从operation和roleOperation两个表中联表查询，然后把operation中的操作信息赋值给roleOperation类中的相关字段AuthElementOperation。-->
     <resultMap id="AuthElementOperationResultMap" type="com.project.bilibili.domain.auth.AuthRoleElementOperation">

@@ -19,6 +19,7 @@ public class AuthRoleElementOperationService {
 //            System.out.println(i);
 //        }
 //        System.out.println(roleSet.size());
+//        System.out.println(roleSet.size());
         return authRoleElementOperationDao.getRoleElementsByRoleIds(roleSet);
     }
 }

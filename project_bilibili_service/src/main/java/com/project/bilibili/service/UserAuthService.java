@@ -27,6 +27,9 @@ public class UserAuthService {
 //       根据userId获取其角色关联，可能不止一个，所以返回列表
         List<UserRole> userRoles = userRoleService.getUserRolesByUserId(userId);
 //        System.out.println(userRoles.size());
+        userRoles.forEach(item->{
+            System.out.println(item.getUserId());
+        });
 //       获取到用户对应的所有角色的Ids
         Set<Long> roleSet = userRoles.stream().map(UserRole::getUserId).collect(Collectors.toSet());
 //       通过roleid的set获取到userAuthorities的所有相关组件：AuthRoleElementOperation，AuthRoleMenu，当然都是list，即这个用户可以的所有操作和前端使用的所有按钮
@@ -34,6 +37,9 @@ public class UserAuthService {
         List<AuthRoleMenu> authRoleMenus = authRoleMenuService.getRoleMenusByRoleIds(roleSet);
 //       新建用户权限对象，将查询出来的内容赋值进去
         UserAuthorities userAuthorities = new UserAuthorities();
+        authRoleElementOperations.forEach(item->{
+            System.out.println(item.getRoleId());
+        });
         userAuthorities.setRoleElementOperationList(authRoleElementOperations);
         userAuthorities.setRoleMenuList(authRoleMenus);
         return userAuthorities;

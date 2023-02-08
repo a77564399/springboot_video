@@ -50,5 +50,4 @@ public class UserMomentsApi {
         System.out.println(userMomentList);
         return new JsonResponse<>(userMomentList);
     }
-
 }
